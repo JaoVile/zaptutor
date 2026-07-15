@@ -30,10 +30,10 @@ function montarMensagem(config, texto) {
   const corpo = config.fraseMaiuscula ? capitalizarFrases(texto) : texto;
   const prefixo = formatarNome(config);
   if (!prefixo) return corpo;
-  // Com quebra de linha: nome em cima, uma linha em branco e a mensagem
-  // embaixo (por isso "\n\n"). Sem quebra: nome e mensagem na mesma linha.
-  const separador = config.quebraLinha ? "\n\n" : " ";
-  return prefixo + separador + corpo;
+  // Formato "João:" seguido da mensagem. Com quebra de linha, a mensagem vai
+  // na linha de baixo; sem quebra, na mesma linha após um espaço.
+  const separador = config.quebraLinha ? "\n" : " ";
+  return prefixo + ":" + separador + corpo;
 }
 
 if (typeof module !== "undefined" && module.exports) {
