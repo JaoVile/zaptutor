@@ -2,6 +2,11 @@
 // (mesmo escopo isolado), então DEFAULT_CONFIG, montarMensagem e SELETORES
 // já estão disponíveis.
 
+// Carimbo de carregamento: numa página limpa aparece UMA vez no console. Se
+// aparecer várias, há cópias antigas do script empilhadas (recarregou a
+// extensão sem recarregar a página) — e elas causam texto duplicado.
+console.log("%c[Zapteach] script carregado", "color:#128c7e;font-weight:bold");
+
 let configAtual = { ...DEFAULT_CONFIG };
 
 chrome.storage.sync.get(DEFAULT_CONFIG, (dados) => {
@@ -74,6 +79,13 @@ document.addEventListener(
     // que o WhatsApp representa como <br> na caixa contenteditable.
     const texto = caixa.innerText ?? "";
     if (!texto.trim()) return;
+
+    // Trava anti-duplicação: guardamos um carimbo de tempo na própria caixa
+    // (o DOM é compartilhado por todas as cópias do script). Se outra cópia
+    // acabou de processar este envio, não repetimos.
+    const agora = Date.now();
+    if (caixa.dataset.zapTs && agora - Number(caixa.dataset.zapTs) < 1000) return;
+    caixa.dataset.zapTs = String(agora);
 
     // Se o texto já começa com o nome, não injeta de novo. Evita duplicar o
     // prefixo se este handler rodar mais de uma vez (ex.: uma cópia antiga do
