@@ -1,0 +1,9 @@
+{
+  "name": "zapteach",
+  "version": "1.0.0",
+  "description": "Extensão Chrome que adiciona o nome do atendente nas mensagens do WhatsApp Web.",
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "license": "MIT"
+}
