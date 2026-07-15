@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Zapteach",
+  "version": "1.0.0",
+  "description": "Adiciona o nome do atendente nas mensagens do WhatsApp Web.",
+  "permissions": ["storage"],
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_title": "Zapteach"
+  }
+}

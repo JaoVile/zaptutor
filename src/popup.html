@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <h1>Zapteach</h1>
+
+    <label class="linha">
+      <span>Ativar</span>
+      <input type="checkbox" id="ativo" />
+    </label>
+
+    <label class="campo">
+      Seu nome
+      <input type="text" id="nome" placeholder="Ex.: João" />
+    </label>
+
+    <fieldset>
+      <legend>Estilo do nome</legend>
+      <label class="linha"><span>Negrito</span><input type="checkbox" id="negrito" /></label>
+      <label class="linha"><span>Itálico</span><input type="checkbox" id="italico" /></label>
+      <label class="linha"><span>Quebra de linha</span><input type="checkbox" id="quebraLinha" /></label>
+    </fieldset>
+
+    <label class="linha">
+      <span>Frase inicial maiúscula</span>
+      <input type="checkbox" id="fraseMaiuscula" />
+    </label>
+
+    <button id="salvar">Salvar</button>
+    <p id="status" role="status"></p>
+
+    <script src="lib/format.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
