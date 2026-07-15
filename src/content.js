@@ -51,19 +51,21 @@ function inserirQuebra(caixa) {
   return false;
 }
 
-// Reescreve a caixa com o texto final. Insere linha a linha: o texto de cada
-// linha vai por execCommand("insertText") (que preserva o conteúdo) e as
-// quebras entram por inserirQuebra(). Assim o "\n" nunca é passado como
-// caractere ao editor, que o descartaria.
+// Reescreve a caixa com o texto final, linha a linha. A PRIMEIRA inserção usa
+// insertText com tudo selecionado (selectAll), o que SUBSTITUI o texto do
+// usuário de uma vez — sem um "delete" separado, que no editor do WhatsApp não
+// apaga e ainda deixa o texto original sobrando (causava duplicação). As
+// linhas seguintes entram como quebra + texto; o "\n" nunca vai como caractere
+// ao editor, que o descartaria.
 function inserirMensagem(caixa, texto) {
   caixa.focus();
   document.execCommand("selectAll", false, null);
-  document.execCommand("delete", false, null);
   const linhas = texto.split("\n");
-  linhas.forEach((linha, i) => {
-    if (i > 0) inserirQuebra(caixa);
-    if (linha) document.execCommand("insertText", false, linha);
-  });
+  document.execCommand("insertText", false, linhas[0]);
+  for (let i = 1; i < linhas.length; i++) {
+    inserirQuebra(caixa);
+    if (linhas[i]) document.execCommand("insertText", false, linhas[i]);
+  }
 }
 
 document.addEventListener(
