@@ -36,7 +36,9 @@ document.addEventListener(
     const caixa = obterCaixaDeTexto(e.target);
     if (!caixa) return;
 
-    const texto = caixa.textContent ?? "";
+    // innerText (não textContent) preserva as quebras de linha (Shift+Enter)
+    // que o WhatsApp representa como <br> na caixa contenteditable.
+    const texto = caixa.innerText ?? "";
     if (!texto.trim()) return;
 
     const final = montarMensagem(configAtual, texto);
