@@ -32,19 +32,17 @@ function contarQuebras(texto) {
 }
 
 // O editor do WhatsApp (Lexical) NÃO transforma um caractere "\n" em quebra
-// visual — a quebra só nasce do comando interno de "line break" (o mesmo do
-// Shift+Enter). Disparamos esse comando via evento beforeinput e conferimos,
-// pelo innerText, se a quebra realmente entrou; se o primeiro mecanismo não
-// pegar nesta versão do WhatsApp, tentamos o segundo.
+// visual, e ignora eventos sintéticos (paste/beforeinput) — que ainda
+// bagunçam o cursor. Só o caminho "confiável" de edição do navegador
+// (execCommand) é respeitado, como provou o insertText do texto. Criamos a
+// quebra por execCommand e conferimos pelo innerText se ela realmente entrou;
+// se o primeiro comando não pegar nesta versão, tentamos o próximo.
 function inserirQuebra(caixa) {
   const antes = contarQuebras(caixa.innerText);
-  const mecanismos = ["insertLineBreak", "insertParagraph"];
-  for (const inputType of mecanismos) {
-    caixa.dispatchEvent(
-      new InputEvent("beforeinput", { inputType, bubbles: true, cancelable: true })
-    );
-    if (contarQuebras(caixa.innerText) > antes) return true;
-  }
+  document.execCommand("insertParagraph");
+  if (contarQuebras(caixa.innerText) > antes) return true;
+  document.execCommand("insertHTML", false, "<br>");
+  if (contarQuebras(caixa.innerText) > antes) return true;
   return false;
 }
 

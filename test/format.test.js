@@ -50,9 +50,9 @@ test("capitalizarFrases: após quebra de linha", () => {
   assert.strictEqual(capitalizarFrases("linha um\nlinha dois"), "Linha um\nLinha dois");
 });
 
-test("montarMensagem: nome com quebra de linha + maiúscula", () => {
+test("montarMensagem: nome em cima, linha em branco, mensagem embaixo", () => {
   const c = cfg({ nome: "João", quebraLinha: true, fraseMaiuscula: true });
-  assert.strictEqual(montarMensagem(c, "olá, tudo bem?"), "João\nOlá, tudo bem?");
+  assert.strictEqual(montarMensagem(c, "olá, tudo bem?"), "João\n\nOlá, tudo bem?");
 });
 
 test("montarMensagem: sem quebra de linha usa espaço", () => {
@@ -62,7 +62,7 @@ test("montarMensagem: sem quebra de linha usa espaço", () => {
 
 test("montarMensagem: fraseMaiuscula desligada preserva o texto", () => {
   const c = cfg({ nome: "João", fraseMaiuscula: false });
-  assert.strictEqual(montarMensagem(c, "olá"), "João\nolá");
+  assert.strictEqual(montarMensagem(c, "olá"), "João\n\nolá");
 });
 
 test("montarMensagem: nome vazio retorna só o corpo", () => {
