@@ -27,19 +27,40 @@ function enviarMensagem() {
   else if (icone) icone.click();
 }
 
-// Insere o texto na caixa simulando um "colar". O handler de colar do
-// WhatsApp lê o clipboardData do evento e converte os \n em quebras de
-// linha reais. Foi preciso porque execCommand("insertText") descartava o
-// \n, colando as linhas (ex.: "João\nTeste" virava "JoãoTeste").
-function colarNaCaixa(caixa, texto) {
-  const dados = new DataTransfer();
-  dados.setData("text/plain", texto);
-  const evento = new ClipboardEvent("paste", {
-    bubbles: true,
-    cancelable: true,
-    clipboardData: dados,
+function contarQuebras(texto) {
+  return (texto.match(/\n/g) || []).length;
+}
+
+// O editor do WhatsApp (Lexical) NÃO transforma um caractere "\n" em quebra
+// visual — a quebra só nasce do comando interno de "line break" (o mesmo do
+// Shift+Enter). Disparamos esse comando via evento beforeinput e conferimos,
+// pelo innerText, se a quebra realmente entrou; se o primeiro mecanismo não
+// pegar nesta versão do WhatsApp, tentamos o segundo.
+function inserirQuebra(caixa) {
+  const antes = contarQuebras(caixa.innerText);
+  const mecanismos = ["insertLineBreak", "insertParagraph"];
+  for (const inputType of mecanismos) {
+    caixa.dispatchEvent(
+      new InputEvent("beforeinput", { inputType, bubbles: true, cancelable: true })
+    );
+    if (contarQuebras(caixa.innerText) > antes) return true;
+  }
+  return false;
+}
+
+// Reescreve a caixa com o texto final. Insere linha a linha: o texto de cada
+// linha vai por execCommand("insertText") (que preserva o conteúdo) e as
+// quebras entram por inserirQuebra(). Assim o "\n" nunca é passado como
+// caractere ao editor, que o descartaria.
+function inserirMensagem(caixa, texto) {
+  caixa.focus();
+  document.execCommand("selectAll", false, null);
+  document.execCommand("delete", false, null);
+  const linhas = texto.split("\n");
+  linhas.forEach((linha, i) => {
+    if (i > 0) inserirQuebra(caixa);
+    if (linha) document.execCommand("insertText", false, linha);
   });
-  caixa.dispatchEvent(evento);
 }
 
 document.addEventListener(
@@ -63,9 +84,7 @@ document.addEventListener(
     e.preventDefault();
     e.stopPropagation();
 
-    caixa.focus();
-    document.execCommand("selectAll", false, null);
-    colarNaCaixa(caixa, final);
+    inserirMensagem(caixa, final);
 
     // Dá um tick para o WhatsApp registrar o texto e exibir o botão enviar.
     setTimeout(enviarMensagem, 0);
