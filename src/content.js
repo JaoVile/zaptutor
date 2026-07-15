@@ -27,6 +27,21 @@ function enviarMensagem() {
   else if (icone) icone.click();
 }
 
+// Insere o texto na caixa simulando um "colar". O handler de colar do
+// WhatsApp lê o clipboardData do evento e converte os \n em quebras de
+// linha reais. Foi preciso porque execCommand("insertText") descartava o
+// \n, colando as linhas (ex.: "João\nTeste" virava "JoãoTeste").
+function colarNaCaixa(caixa, texto) {
+  const dados = new DataTransfer();
+  dados.setData("text/plain", texto);
+  const evento = new ClipboardEvent("paste", {
+    bubbles: true,
+    cancelable: true,
+    clipboardData: dados,
+  });
+  caixa.dispatchEvent(evento);
+}
+
 document.addEventListener(
   "keydown",
   (e) => {
@@ -50,7 +65,7 @@ document.addEventListener(
 
     caixa.focus();
     document.execCommand("selectAll", false, null);
-    document.execCommand("insertText", false, final);
+    colarNaCaixa(caixa, final);
 
     // Dá um tick para o WhatsApp registrar o texto e exibir o botão enviar.
     setTimeout(enviarMensagem, 0);
