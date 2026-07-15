@@ -75,6 +75,12 @@ document.addEventListener(
     const texto = caixa.innerText ?? "";
     if (!texto.trim()) return;
 
+    // Se o texto já começa com o nome, não injeta de novo. Evita duplicar o
+    // prefixo se este handler rodar mais de uma vez (ex.: uma cópia antiga do
+    // script ainda ativa na página após recarregar a extensão sem fechar a aba).
+    const prefixoNome = formatarNome(configAtual);
+    if (prefixoNome && texto.trimStart().startsWith(prefixoNome + ":")) return;
+
     const final = montarMensagem(configAtual, texto);
     if (final === texto) return; // nada a acrescentar
 
