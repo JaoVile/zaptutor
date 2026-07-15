@@ -7,5 +7,12 @@
   "action": {
     "default_popup": "src/popup.html",
     "default_title": "Zapteach"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": ["src/lib/format.js", "src/lib/seletores.js", "src/content.js"],
+      "run_at": "document_idle"
+    }
+  ]
 }
