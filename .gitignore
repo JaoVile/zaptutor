@@ -17,3 +17,6 @@ Thumbs.db
 # Build / empacotamento da extensão
 *.zip
 dist/
+
+# Sessões do brainstorm visual
+.superpowers/
