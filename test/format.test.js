@@ -7,6 +7,7 @@ const {
   montarMensagem,
   converterTextoDoEditor,
   normalizarTexto,
+  previewHTML,
 } = require("../src/lib/format.js");
 
 function cfg(extra) {
@@ -97,4 +98,36 @@ test("normalizarTexto: colapsa quebras e apara linhas para comparação", () => 
 
 test("normalizarTexto: troca nbsp por espaço e ignora linhas vazias", () => {
   assert.strictEqual(normalizarTexto("a b\n\n\nc"), "a b\nc");
+});
+
+// previewHTML: converte a mensagem final (marcação do WhatsApp) em HTML
+// seguro para a bolha de prévia do popup.
+test("previewHTML: negrito vira <b> e quebra vira <br>", () => {
+  const c = cfg({ nome: "João", negrito: true, quebraLinha: true, fraseMaiuscula: true });
+  assert.strictEqual(previewHTML(c, "olá"), "<b>João</b>:<br>Olá");
+});
+
+test("previewHTML: itálico vira <i>", () => {
+  const c = cfg({ nome: "João", italico: true, fraseMaiuscula: true });
+  assert.strictEqual(previewHTML(c, "olá"), "<i>João</i>:<br>Olá");
+});
+
+test("previewHTML: negrito + itálico aninham", () => {
+  const c = cfg({ nome: "João", negrito: true, italico: true, fraseMaiuscula: true });
+  assert.strictEqual(previewHTML(c, "olá"), "<b><i>João</i></b>:<br>Olá");
+});
+
+test("previewHTML: sem quebra de linha usa espaço (sem <br>)", () => {
+  const c = cfg({ nome: "João", quebraLinha: false, fraseMaiuscula: true });
+  assert.strictEqual(previewHTML(c, "olá"), "João: Olá");
+});
+
+test("previewHTML: escapa HTML do nome (nunca injeta tag crua)", () => {
+  const c = cfg({ nome: "A<b> & Cia", fraseMaiuscula: false });
+  assert.strictEqual(previewHTML(c, "oi"), "A&lt;b&gt; &amp; Cia:<br>oi");
+});
+
+test("previewHTML: nome vazio mostra só o corpo", () => {
+  const c = cfg({ nome: "", fraseMaiuscula: true });
+  assert.strictEqual(previewHTML(c, "olá"), "Olá");
 });

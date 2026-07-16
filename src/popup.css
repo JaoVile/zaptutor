@@ -1,63 +1,196 @@
+/* Paleta oficial do WhatsApp. Claro é o padrão; escuro via prefers-color-scheme. */
+:root {
+  --fundo: #ffffff;
+  --superficie: #f0f2f5;
+  --campo: #ffffff;
+  --borda: #d1d7db;
+  --acento: #008069;
+  --bolha: #d9fdd3;
+  --texto: #111b21;
+  --texto-2: #667781;
+  --conversa: #efeae2;
+  --trilho-desligado: #ccd0d5;
+  --pontilhado: rgba(0, 0, 0, 0.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fundo: #111b21;
+    --superficie: #202c33;
+    --campo: #2a3942;
+    --borda: transparent;
+    --acento: #00a884;
+    --bolha: #005c4b;
+    --texto: #e9edef;
+    --texto-2: #8696a0;
+    --conversa: #0b141a;
+    --trilho-desligado: #3b4a54;
+    --pontilhado: rgba(255, 255, 255, 0.04);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
 body {
-  font-family: system-ui, sans-serif;
-  width: 260px;
+  width: 300px;
   margin: 0;
-  padding: 14px;
-  color: #111;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--fundo);
+  color: var(--texto);
+}
+
+/* Cabeçalho */
+.cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--superficie);
+}
+.logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--acento);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
 }
 h1 {
-  font-size: 18px;
-  margin: 0 0 12px;
-  color: #128c7e;
+  flex: 1;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
 }
-.campo {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin: 10px 0;
+.salvo {
+  font-size: 11px;
+  color: var(--acento);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.salvo.visivel {
+  opacity: 1;
+}
+
+/* Interruptor estilo WhatsApp (checkbox oculto + trilho estilizado) */
+.interruptor {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.interruptor input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+.trilho {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: var(--trilho-desligado);
+  transition: background 0.2s;
+  pointer-events: none;
+}
+.trilho::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.interruptor input:checked + .trilho {
+  background: var(--acento);
+}
+.interruptor input:checked + .trilho::after {
+  transform: translateX(16px);
+}
+.interruptor input:focus-visible + .trilho {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+/* Prévia (fundo imita a conversa; bolha de mensagem enviada) */
+.previa {
+  padding: 14px;
+  background-color: var(--conversa);
+  background-image: radial-gradient(var(--pontilhado) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+.bolha {
+  max-width: 88%;
+  margin-left: auto;
+  background: var(--bolha);
+  border-radius: 8px 8px 0 8px;
+  padding: 8px 10px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+.bolha.inativa {
+  opacity: 0.55;
+}
+.bolha-texto {
   font-size: 13px;
+  line-height: 1.35;
+  word-break: break-word;
 }
-.campo input[type="text"] {
-  padding: 6px 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+.bolha-meta {
+  font-size: 10px;
+  color: var(--texto-2);
+  text-align: right;
+  margin-top: 2px;
 }
-.linha {
+.previa-dica {
+  margin: 8px 0 0;
+  text-align: center;
+  font-size: 10px;
+  color: var(--texto-2);
+}
+
+/* Formulário */
+main {
+  padding: 12px 14px 14px;
+}
+.rotulo {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--texto-2);
+  margin-bottom: 4px;
+}
+#nome {
+  width: 100%;
+  padding: 9px 10px;
+  font-size: 13px;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  background: var(--campo);
+  color: var(--texto);
+}
+#nome:focus {
+  outline: 2px solid var(--acento);
+  border-color: transparent;
+}
+.opcoes {
+  margin-top: 12px;
+}
+.opcao {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 13px;
-  margin: 6px 0;
-}
-fieldset {
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  margin: 10px 0;
-  padding: 6px 10px;
-}
-legend {
-  font-size: 12px;
-  color: #666;
-}
-button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 9px;
-  font-size: 14px;
-  color: #fff;
-  background: #128c7e;
-  border: none;
-  border-radius: 6px;
+  padding: 7px 0;
   cursor: pointer;
-}
-button:hover {
-  background: #0e7268;
-}
-#status {
-  min-height: 16px;
-  margin: 8px 0 0;
-  font-size: 12px;
-  color: #128c7e;
-  text-align: center;
 }

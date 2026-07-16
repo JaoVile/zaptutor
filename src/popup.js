@@ -1,31 +1,96 @@
-function carregar() {
-  chrome.storage.sync.get(DEFAULT_CONFIG, (cfg) => {
-    document.getElementById("nome").value = cfg.nome;
-    document.getElementById("ativo").checked = cfg.ativo;
-    document.getElementById("negrito").checked = cfg.negrito;
-    document.getElementById("italico").checked = cfg.italico;
-    document.getElementById("quebraLinha").checked = cfg.quebraLinha;
-    document.getElementById("fraseMaiuscula").checked = cfg.fraseMaiuscula;
-  });
+// Popup do Zaptor: salvamento automático + prévia ao vivo.
+// DEFAULT_CONFIG e previewHTML vêm de lib/format.js (mesmo escopo).
+
+const CORPO_EXEMPLO = "olá, tudo bem?";
+const CAMPOS_TOGGLE = ["ativo", "negrito", "italico", "quebraLinha", "fraseMaiuscula"];
+
+function el(id) {
+  return document.getElementById(id);
+}
+
+// Lê a configuração atual direto dos controles da tela.
+function configDaTela() {
+  return {
+    nome: el("nome").value.trim(),
+    ativo: el("ativo").checked,
+    negrito: el("negrito").checked,
+    italico: el("italico").checked,
+    quebraLinha: el("quebraLinha").checked,
+    fraseMaiuscula: el("fraseMaiuscula").checked,
+  };
+}
+
+function atualizarPrevia() {
+  const cfg = configDaTela();
+  // Prévia honesta: desligada, a mensagem real sai sem o nome — a bolha
+  // mostra isso e fica esmaecida.
+  const efetiva = cfg.ativo ? cfg : { ...cfg, nome: "" };
+  el("previaTexto").innerHTML = previewHTML(efetiva, CORPO_EXEMPLO);
+  document.querySelector(".bolha").classList.toggle("inativa", !cfg.ativo);
+}
+
+// "✓ salvo" pisca no cabeçalho e some sozinho.
+let timerSalvo = null;
+function mostrarSalvo() {
+  const aviso = el("salvo");
+  aviso.classList.add("visivel");
+  clearTimeout(timerSalvo);
+  timerSalvo = setTimeout(() => aviso.classList.remove("visivel"), 1200);
 }
 
 function salvar() {
-  const cfg = {
-    nome: document.getElementById("nome").value.trim(),
-    ativo: document.getElementById("ativo").checked,
-    negrito: document.getElementById("negrito").checked,
-    italico: document.getElementById("italico").checked,
-    quebraLinha: document.getElementById("quebraLinha").checked,
-    fraseMaiuscula: document.getElementById("fraseMaiuscula").checked,
-  };
-  chrome.storage.sync.set(cfg, () => {
-    const status = document.getElementById("status");
-    status.textContent = "Salvo!";
-    setTimeout(() => (status.textContent = ""), 1500);
+  chrome.storage.sync.set(configDaTela(), () => {
+    if (chrome.runtime.lastError) {
+      console.warn("[Zaptor] falha ao salvar:", chrome.runtime.lastError.message);
+      return;
+    }
+    mostrarSalvo();
   });
 }
 
+// Debounce do nome fica em escopo de módulo: o popup pode ser destruído
+// a qualquer momento (perda de foco), então o pagehide abaixo precisa
+// enxergar essa variável para descarregar o save pendente.
+let timerNome = null;
+
 document.addEventListener("DOMContentLoaded", () => {
-  carregar();
-  document.getElementById("salvar").addEventListener("click", salvar);
+  chrome.storage.sync.get(DEFAULT_CONFIG, (cfg) => {
+    el("nome").value = cfg.nome;
+    for (const id of CAMPOS_TOGGLE) el(id).checked = cfg[id];
+    atualizarPrevia();
+  });
+
+  // Toggles: salvam na hora.
+  for (const id of CAMPOS_TOGGLE) {
+    el(id).addEventListener("change", () => {
+      atualizarPrevia();
+      // Cancela o debounce do nome: o save imediato abaixo já carrega
+      // o valor atual do nome via configDaTela(), então não precisa
+      // de um segundo save 400ms depois duplicando a escrita.
+      clearTimeout(timerNome);
+      timerNome = null;
+      salvar();
+    });
+  }
+
+  // Nome: prévia a cada tecla; salva 400ms depois da última tecla.
+  el("nome").addEventListener("input", () => {
+    atualizarPrevia();
+    clearTimeout(timerNome);
+    timerNome = setTimeout(() => {
+      timerNome = null;
+      salvar();
+    }, 400);
+  });
+});
+
+// Chrome destrói o documento do popup na hora ao perder o foco: um
+// setTimeout(salvar, 400) pendente morre junto e a edição do nome
+// some silenciosamente. Descarrega o save pendente antes de fechar.
+window.addEventListener("pagehide", () => {
+  if (timerNome) {
+    clearTimeout(timerNome);
+    timerNome = null;
+    salvar();
+  }
 });
