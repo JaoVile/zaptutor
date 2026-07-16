@@ -41,6 +41,9 @@ próprio na barra do Chrome.
    ("Olá, tudo bem?"). Negrito/itálico aparecem renderizados na bolha; a
    quebra de linha aparece de verdade. Atualiza a cada tecla e a cada toggle.
    Rodapé da bolha com hora fictícia e ✓✓, como no WhatsApp.
+   **Prévia honesta** (decisão pós-review): com o interruptor mestre
+   desligado, a mensagem real sai sem o nome — a bolha então mostra só o
+   corpo, esmaecida (`.bolha.inativa`, opacity 0.55).
 3. **Campo "Seu nome"** — input de texto, mesmo comportamento de hoje.
 4. **Opções** — quatro linhas com interruptores: Negrito, Itálico, Quebra de
    linha, Frase inicial maiúscula.
