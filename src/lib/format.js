@@ -55,7 +55,7 @@ function normalizarTexto(texto) {
     .join("\n");
 }
 
-// Converte texto em HTML inofensivo (nunca renderiza tag vinda do usu\u00e1rio).
+// Converte texto em HTML inofensivo (nunca renderiza tag vinda do usuário).
 function escaparHTML(texto) {
   return (texto || "")
     .replace(/&/g, "&amp;")
@@ -63,10 +63,10 @@ function escaparHTML(texto) {
     .replace(/>/g, "&gt;");
 }
 
-// HTML da bolha de pr\u00e9via do popup: monta a mensagem final com a MESMA
-// fun\u00e7\u00e3o do envio real (a pr\u00e9via nunca mente) e converte a marca\u00e7\u00e3o do
+// HTML da bolha de prévia do popup: monta a mensagem final com a MESMA
+// função do envio real (a prévia nunca mente) e converte a marcação do
 // WhatsApp para HTML: *x* -> <b>, _x_ -> <i>, \n -> <br>. Escapa o HTML
-// ANTES de converter a marca\u00e7\u00e3o.
+// ANTES de converter a marcação.
 function previewHTML(config, corpo) {
   let texto = escaparHTML(montarMensagem(config, corpo));
   texto = texto.replace(/\*([^*]+)\*/g, "<b>$1</b>");
