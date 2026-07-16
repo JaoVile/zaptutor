@@ -137,6 +137,9 @@ h1 {
   padding: 8px 10px;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
+.bolha.inativa {
+  opacity: 0.55;
+}
 .bolha-texto {
   font-size: 13px;
   line-height: 1.35;

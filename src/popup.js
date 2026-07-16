@@ -21,7 +21,12 @@ function configDaTela() {
 }
 
 function atualizarPrevia() {
-  el("previaTexto").innerHTML = previewHTML(configDaTela(), CORPO_EXEMPLO);
+  const cfg = configDaTela();
+  // Prévia honesta: desligada, a mensagem real sai sem o nome — a bolha
+  // mostra isso e fica esmaecida.
+  const efetiva = cfg.ativo ? cfg : { ...cfg, nome: "" };
+  el("previaTexto").innerHTML = previewHTML(efetiva, CORPO_EXEMPLO);
+  document.querySelector(".bolha").classList.toggle("inativa", !cfg.ativo);
 }
 
 // "✓ salvo" pisca no cabeçalho e some sozinho.
