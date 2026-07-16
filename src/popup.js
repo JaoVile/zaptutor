@@ -1,31 +1,62 @@
-function carregar() {
-  chrome.storage.sync.get(DEFAULT_CONFIG, (cfg) => {
-    document.getElementById("nome").value = cfg.nome;
-    document.getElementById("ativo").checked = cfg.ativo;
-    document.getElementById("negrito").checked = cfg.negrito;
-    document.getElementById("italico").checked = cfg.italico;
-    document.getElementById("quebraLinha").checked = cfg.quebraLinha;
-    document.getElementById("fraseMaiuscula").checked = cfg.fraseMaiuscula;
-  });
+// Popup do Zapteach: salvamento automático + prévia ao vivo.
+// DEFAULT_CONFIG e previewHTML vêm de lib/format.js (mesmo escopo).
+
+const CORPO_EXEMPLO = "olá, tudo bem?";
+const CAMPOS_TOGGLE = ["ativo", "negrito", "italico", "quebraLinha", "fraseMaiuscula"];
+
+function el(id) {
+  return document.getElementById(id);
+}
+
+// Lê a configuração atual direto dos controles da tela.
+function configDaTela() {
+  return {
+    nome: el("nome").value.trim(),
+    ativo: el("ativo").checked,
+    negrito: el("negrito").checked,
+    italico: el("italico").checked,
+    quebraLinha: el("quebraLinha").checked,
+    fraseMaiuscula: el("fraseMaiuscula").checked,
+  };
+}
+
+function atualizarPrevia() {
+  el("previaTexto").innerHTML = previewHTML(configDaTela(), CORPO_EXEMPLO);
+}
+
+// "✓ salvo" pisca no cabeçalho e some sozinho.
+let timerSalvo = null;
+function mostrarSalvo() {
+  const aviso = el("salvo");
+  aviso.classList.add("visivel");
+  clearTimeout(timerSalvo);
+  timerSalvo = setTimeout(() => aviso.classList.remove("visivel"), 1200);
 }
 
 function salvar() {
-  const cfg = {
-    nome: document.getElementById("nome").value.trim(),
-    ativo: document.getElementById("ativo").checked,
-    negrito: document.getElementById("negrito").checked,
-    italico: document.getElementById("italico").checked,
-    quebraLinha: document.getElementById("quebraLinha").checked,
-    fraseMaiuscula: document.getElementById("fraseMaiuscula").checked,
-  };
-  chrome.storage.sync.set(cfg, () => {
-    const status = document.getElementById("status");
-    status.textContent = "Salvo!";
-    setTimeout(() => (status.textContent = ""), 1500);
-  });
+  chrome.storage.sync.set(configDaTela(), mostrarSalvo);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  carregar();
-  document.getElementById("salvar").addEventListener("click", salvar);
+  chrome.storage.sync.get(DEFAULT_CONFIG, (cfg) => {
+    el("nome").value = cfg.nome;
+    for (const id of CAMPOS_TOGGLE) el(id).checked = cfg[id];
+    atualizarPrevia();
+  });
+
+  // Toggles: salvam na hora.
+  for (const id of CAMPOS_TOGGLE) {
+    el(id).addEventListener("change", () => {
+      atualizarPrevia();
+      salvar();
+    });
+  }
+
+  // Nome: prévia a cada tecla; salva 400ms depois da última tecla.
+  let timerNome = null;
+  el("nome").addEventListener("input", () => {
+    atualizarPrevia();
+    clearTimeout(timerNome);
+    timerNome = setTimeout(salvar, 400);
+  });
 });
