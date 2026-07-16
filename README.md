@@ -1,4 +1,4 @@
-# Zapteach
+# Zaptor
 
 Extensão para o Google Chrome que insere automaticamente o **nome do atendente na
 frente de cada mensagem enviada no WhatsApp Web**.
