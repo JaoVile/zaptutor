@@ -5,6 +5,8 @@ const {
   formatarNome,
   capitalizarFrases,
   montarMensagem,
+  converterTextoDoEditor,
+  normalizarTexto,
 } = require("../src/lib/format.js");
 
 function cfg(extra) {
@@ -68,4 +70,31 @@ test("montarMensagem: fraseMaiuscula desligada preserva o texto", () => {
 test("montarMensagem: nome vazio retorna só o corpo", () => {
   const c = cfg({ nome: "", fraseMaiuscula: true });
   assert.strictEqual(montarMensagem(c, "olá"), "Olá");
+});
+
+// O editor do WhatsApp (Lexical) representa cada linha como um <p>, e o
+// innerText devolve "\n\n" entre linhas ("a\n\nb" = UMA quebra visual).
+test("converterTextoDoEditor: par de \\n vira uma quebra lógica", () => {
+  assert.strictEqual(converterTextoDoEditor("a\n\nb"), "a\nb");
+});
+
+test("converterTextoDoEditor: linha em branco intencional é preservada", () => {
+  assert.strictEqual(converterTextoDoEditor("a\n\n\n\nb"), "a\n\nb");
+});
+
+test("converterTextoDoEditor: texto de uma linha passa intacto", () => {
+  assert.strictEqual(converterTextoDoEditor("olá mundo"), "olá mundo");
+});
+
+test("converterTextoDoEditor: espaços das pontas são removidos", () => {
+  assert.strictEqual(converterTextoDoEditor("  a\n\nb \n"), "a\nb");
+});
+
+test("normalizarTexto: colapsa quebras e apara linhas para comparação", () => {
+  assert.strictEqual(normalizarTexto("João:\n\nOlá  "), "João:\nOlá");
+  assert.strictEqual(normalizarTexto("João:\nOlá"), "João:\nOlá");
+});
+
+test("normalizarTexto: troca nbsp por espaço e ignora linhas vazias", () => {
+  assert.strictEqual(normalizarTexto("a b\n\n\nc"), "a b\nc");
 });

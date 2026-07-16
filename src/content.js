@@ -32,40 +32,42 @@ function enviarMensagem() {
   else if (icone) icone.click();
 }
 
-function contarQuebras(texto) {
-  return (texto.match(/\n/g) || []).length;
-}
-
-// O editor do WhatsApp (Lexical) NÃO transforma um caractere "\n" em quebra
-// visual, e ignora eventos sintéticos (paste/beforeinput) — que ainda
-// bagunçam o cursor. Só o caminho "confiável" de edição do navegador
-// (execCommand) é respeitado, como provou o insertText do texto. Criamos a
-// quebra por execCommand e conferimos pelo innerText se ela realmente entrou;
-// se o primeiro comando não pegar nesta versão, tentamos o próximo.
-function inserirQuebra(caixa) {
-  const antes = contarQuebras(caixa.innerText);
-  document.execCommand("insertParagraph");
-  if (contarQuebras(caixa.innerText) > antes) return true;
-  document.execCommand("insertHTML", false, "<br>");
-  if (contarQuebras(caixa.innerText) > antes) return true;
-  return false;
-}
-
-// Reescreve a caixa com o texto final, linha a linha. A PRIMEIRA inserção usa
-// insertText com tudo selecionado (selectAll), o que SUBSTITUI o texto do
-// usuário de uma vez — sem um "delete" separado, que no editor do WhatsApp não
-// apaga e ainda deixa o texto original sobrando (causava duplicação). As
-// linhas seguintes entram como quebra + texto; o "\n" nunca vai como caractere
-// ao editor, que o descartaria.
-function inserirMensagem(caixa, texto) {
+// Diagnóstico de 2026-07-16 (bateria //diag): o editor do WhatsApp (Lexical)
+// processa edições de forma ASSÍNCRONA — o DOM só reflete a mudança ~um tick
+// depois. execCommand insertParagraph/insertHTML retornam true mas o editor
+// descarta a mudança; o evento "paste" sintético é a ÚNICA via que cria
+// quebras de linha reais (<p> separados, iguais às de um Shift+Enter manual).
+// A tentativa antiga com paste (commit dd25d16) falhou porque enviava com
+// setTimeout(0), ANTES de o editor aplicar o texto — a via estava certa, o
+// timing não. Por isso: cola via paste e ESPERA a caixa refletir o texto.
+function colarTexto(caixa, texto) {
   caixa.focus();
   document.execCommand("selectAll", false, null);
-  const linhas = texto.split("\n");
-  document.execCommand("insertText", false, linhas[0]);
-  for (let i = 1; i < linhas.length; i++) {
-    inserirQuebra(caixa);
-    if (linhas[i]) document.execCommand("insertText", false, linhas[i]);
-  }
+  // A seleção também é sincronizada de forma assíncrona pelo Lexical (via
+  // selectionchange). Colar no MESMO tick do selectAll faz o editor usar a
+  // seleção antiga (cursor no fim) e ANEXAR em vez de substituir — foi o bug
+  // do "ola*João...*:" com o texto original sobrando na frente. O respiro de
+  // 50ms deixa o editor registrar o "selecionar tudo" antes do colar.
+  setTimeout(() => {
+    const dados = new DataTransfer();
+    dados.setData("text/plain", texto);
+    caixa.dispatchEvent(
+      new ClipboardEvent("paste", { bubbles: true, cancelable: true, clipboardData: dados })
+    );
+  }, 50);
+}
+
+// Espera (até 1,5s) o editor aplicar o texto colado, conferindo a caixa a
+// cada 30ms. Compara com normalizarTexto porque o innerText do Lexical usa
+// "\n\n" entre parágrafos e pode ter espaços/nbsp sobrando.
+function aguardarTexto(caixa, esperado, aoTerminar) {
+  const alvo = normalizarTexto(esperado);
+  const limite = Date.now() + 1500;
+  (function confere() {
+    if (normalizarTexto(caixa.innerText) === alvo) return aoTerminar(true);
+    if (Date.now() > limite) return aoTerminar(false);
+    setTimeout(confere, 30);
+  })();
 }
 
 document.addEventListener(
@@ -77,9 +79,9 @@ document.addEventListener(
     const caixa = obterCaixaDeTexto(e.target);
     if (!caixa) return;
 
-    // innerText (não textContent) preserva as quebras de linha (Shift+Enter)
-    // que o WhatsApp representa como <br> na caixa contenteditable.
-    const texto = caixa.innerText ?? "";
+    // innerText preserva as quebras (Shift+Enter); converterTextoDoEditor
+    // reduz o "\n\n" que o Lexical devolve por parágrafo a uma quebra lógica.
+    const texto = converterTextoDoEditor(caixa.innerText ?? "");
     if (!texto.trim()) return;
 
     // Trava anti-duplicação: guardamos um carimbo de tempo na própria caixa
@@ -102,10 +104,17 @@ document.addEventListener(
     e.preventDefault();
     e.stopPropagation();
 
-    inserirMensagem(caixa, final);
+    colarTexto(caixa, final);
 
-    // Dá um tick para o WhatsApp registrar o texto e exibir o botão enviar.
-    setTimeout(enviarMensagem, 0);
+    // Só clica em enviar DEPOIS de o editor aplicar o texto colado (é
+    // assíncrono). Se estourar o tempo, envia mesmo assim para a mensagem
+    // não ficar presa na caixa.
+    aguardarTexto(caixa, final, (aplicou) => {
+      if (!aplicou) {
+        console.warn("[Zapteach] editor não confirmou o texto a tempo; enviando assim mesmo");
+      }
+      enviarMensagem();
+    });
   },
   true // capture: intercepta antes do handler do WhatsApp
 );

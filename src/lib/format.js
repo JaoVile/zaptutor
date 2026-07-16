@@ -36,6 +36,32 @@ function montarMensagem(config, texto) {
   return prefixo + ":" + separador + corpo;
 }
 
+// O editor do WhatsApp (Lexical) representa cada linha como um <p>, e o
+// innerText devolve "\n\n" entre linhas — ou seja, UMA quebra visual chega
+// como um PAR de "\n". Converte para texto lógico reduzindo cada par a uma
+// quebra ("a\n\nb" → "a\nb"; linha em branco "a\n\n\n\nb" → "a\n\nb").
+function converterTextoDoEditor(texto) {
+  return (texto || "").trim().replace(/\n\n/g, "\n");
+}
+
+// Normaliza para comparar o conteúdo da caixa com o texto que pedimos para
+// colar: nbsp vira espaço, cada linha é aparada e linhas vazias somem.
+function normalizarTexto(texto) {
+  return (texto || "")
+    .replace(/\u00a0/g, " ")
+    .split("\n")
+    .map((linha) => linha.trim())
+    .filter(Boolean)
+    .join("\n");
+}
+
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { DEFAULT_CONFIG, formatarNome, capitalizarFrases, montarMensagem };
+  module.exports = {
+    DEFAULT_CONFIG,
+    formatarNome,
+    capitalizarFrases,
+    montarMensagem,
+    converterTextoDoEditor,
+    normalizarTexto,
+  };
 }
