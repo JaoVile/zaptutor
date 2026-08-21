@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Zaptor",
+  "name": "Zaptutor",
   "version": "1.1.0",
   "description": "Adiciona o nome do atendente nas mensagens do WhatsApp Web.",
   "permissions": ["storage"],
@@ -12,7 +12,7 @@
   },
   "action": {
     "default_popup": "src/popup.html",
-    "default_title": "Zaptor",
+    "default_title": "Zaptutor",
     "default_icon": {
       "16": "assets/icon-16.png",
       "32": "assets/icon-32.png",

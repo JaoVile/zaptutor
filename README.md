@@ -1,4 +1,4 @@
-# Zaptor
+# Zaptutor
 
 Extensão para o Google Chrome que insere automaticamente o **nome do atendente na
 frente de cada mensagem enviada no WhatsApp Web**.
@@ -7,8 +7,8 @@ Ideal para equipes que **compartilham o mesmo número de telefone**: o cliente s
 sabe com quem está falando, porque o nome vira **conteúdo real da mensagem** — visível
 para todos os destinatários, em qualquer dispositivo, inclusive em grupos.
 
-> 🚧 **Status:** em desenvolvimento. O design da v1 está em
-> [`docs/superpowers/specs/2026-07-15-zapteach-design.md`](docs/superpowers/specs/2026-07-15-zapteach-design.md).
+> **Status:** em uso. O spec de design foi removido do repositório junto com o
+> resto do andaime — segue recuperável no histórico do git.
 
 ## Recursos (v1)
 

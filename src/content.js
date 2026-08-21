@@ -5,7 +5,7 @@
 // Carimbo de carregamento: numa página limpa aparece UMA vez no console. Se
 // aparecer várias, há cópias antigas do script empilhadas (recarregou a
 // extensão sem recarregar a página) — e elas causam texto duplicado.
-console.log("%c[Zaptor] script carregado", "color:#128c7e;font-weight:bold");
+console.log("%c[Zaptutor] script carregado", "color:#128c7e;font-weight:bold");
 
 let configAtual = { ...DEFAULT_CONFIG };
 
@@ -111,7 +111,7 @@ document.addEventListener(
     // não ficar presa na caixa.
     aguardarTexto(caixa, final, (aplicou) => {
       if (!aplicou) {
-        console.warn("[Zaptor] editor não confirmou o texto a tempo; enviando assim mesmo");
+        console.warn("[Zaptutor] editor não confirmou o texto a tempo; enviando assim mesmo");
       }
       enviarMensagem();
     });

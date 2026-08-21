@@ -1,4 +1,4 @@
-// Popup do Zaptor: salvamento automático + prévia ao vivo.
+// Popup do Zaptutor: salvamento automático + prévia ao vivo.
 // DEFAULT_CONFIG e previewHTML vêm de lib/format.js (mesmo escopo).
 
 const CORPO_EXEMPLO = "olá, tudo bem?";
@@ -41,7 +41,7 @@ function mostrarSalvo() {
 function salvar() {
   chrome.storage.sync.set(configDaTela(), () => {
     if (chrome.runtime.lastError) {
-      console.warn("[Zaptor] falha ao salvar:", chrome.runtime.lastError.message);
+      console.warn("[Zaptutor] falha ao salvar:", chrome.runtime.lastError.message);
       return;
     }
     mostrarSalvo();
