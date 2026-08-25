@@ -3,105 +3,216 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Zaptutor — assinatura de atendente no WhatsApp Web</title>
-<meta name="description" content="Extensão para Chrome que prefixa o nome do atendente em toda mensagem enviada de um número de WhatsApp Web compartilhado por várias pessoas.">
+<title>Zaptutor — quem está falando com o cliente</title>
+<meta name="description" content="Extensão para Chrome que assina cada mensagem enviada de um número de WhatsApp Web compartilhado por vários atendentes.">
+<link rel="icon" href="../assets/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --ink: #0c1210;
-    --panel: rgba(255,255,255,0.04);
-    --rule: rgba(255,255,255,0.12);
-    --bone: #e9efec;
-    --mute: #8a9a94;
-    --accent: #00a884;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--ink);
-    color: var(--bone);
-    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
-  a { color: var(--accent); }
-  .wrap { max-width: 1040px; margin: 0 auto; padding: 72px 24px 96px; }
-  .eyebrow {
-    display: flex; align-items: center; gap: 10px;
-    font-family: ui-monospace, "JetBrains Mono", Menlo, monospace;
-    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--mute); margin-bottom: 20px;
-  }
-  h1 { font-size: clamp(32px, 6vw, 54px); line-height: 1.08; font-weight: 600; max-width: 760px; margin: 0 0 20px; }
-  .lede { max-width: 560px; color: var(--mute); font-size: 16px; margin-bottom: 48px; }
-  .example {
-    background: var(--panel); border: 1px solid var(--rule); border-radius: 12px;
-    padding: 20px 24px; max-width: 420px; margin-bottom: 56px; font-size: 15px;
-  }
-  .example strong { color: var(--accent); }
-  .example .them { color: var(--mute); font-size: 12px; margin-top: 10px; }
-  .metrics {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin-bottom: 56px;
-  }
-  .metric { background: var(--panel); padding: 20px 18px; }
-  .metric .value { font-size: 28px; font-family: ui-monospace, monospace; color: var(--accent); margin-bottom: 6px; }
-  .metric .label { font-family: ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
-  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 56px; }
-  .feature .label { font-family: ui-monospace, monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
-  .feature p { font-size: 14px; color: var(--bone); margin: 0; }
-  .footer { border-top: 1px solid var(--rule); padding-top: 24px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap; font-family: ui-monospace, monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
-  .footer .mute { color: var(--mute); }
+/* =========================================================================
+   A página é a conversa.
+   O produto transforma uma mensagem, então o argumento não é uma lista de
+   features — é o mesmo atendimento mostrado duas vezes, sem e com a extensão.
+   A prova está na última fala: o cliente responde chamando a pessoa pelo nome.
+   ========================================================================= */
+:root {
+  --fundo: #07211c;
+  --fundo-alto: #0c2e27;
+  --verde: #00a884;
+  --verde-claro: #64e0b8;
+  --creme: #e9e4dc;
+  --creme-fraco: #9bb0a9;
+  --papel: #efe7de;      /* o papel de parede real do WhatsApp */
+  --balao-meu: #d9fdd3;  /* verde de mensagem enviada */
+  --balao-dele: #ffffff;
+  --tinta: #111b21;
+  --tinta-fraca: #667781;
+  --display: "Bricolage Grotesque", system-ui, sans-serif;
+  --sans: -apple-system, "Segoe UI", Roboto, Helvetica, sans-serif;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--creme);
+  font-family: var(--sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--verde-claro); }
+:focus-visible { outline: 2px solid var(--verde-claro); outline-offset: 3px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 22px; }
+
+/* --- topo --- */
+.topo {
+  display: flex; align-items: center; gap: 9px;
+  padding: 26px 0 0;
+}
+.topo svg { width: 22px; height: 22px; }
+.topo b { font-family: var(--display); font-weight: 800; font-size: 15px; letter-spacing: -0.01em; }
+
+/* --- hero --- */
+.hero { padding: 54px 0 20px; }
+h1 {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(38px, 6.6vw, 78px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  margin: 0 0 22px;
+  max-width: 15ch;
+}
+h1 span { color: var(--verde); }
+.lede { max-width: 50ch; color: var(--creme-fraco); font-size: 16.5px; margin: 0; }
+
+/* --- a assinatura: duas conversas --- */
+.provas {
+  display: grid; grid-template-columns: 1fr; gap: 22px;
+  padding: 48px 0 8px;
+}
+.prova { min-width: 0; }
+.prova-tag {
+  font-family: var(--display); font-weight: 500;
+  font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+  margin: 0 0 12px; display: flex; align-items: center; gap: 9px;
+}
+.prova-tag i { font-style: normal; width: 7px; height: 7px; border-radius: 99px; }
+.sem .prova-tag { color: var(--creme-fraco); }
+.sem .prova-tag i { background: var(--creme-fraco); }
+.com .prova-tag { color: var(--verde-claro); }
+.com .prova-tag i { background: var(--verde); box-shadow: 0 0 0 4px rgb(0 168 132 / 0.22); }
+
+.tela {
+  background: var(--papel);
+  border-radius: 14px;
+  padding: 18px 16px 20px;
+  display: flex; flex-direction: column; gap: 9px;
+  height: 100%;
+}
+.com .tela { box-shadow: 0 0 0 1px rgb(0 168 132 / 0.55), 0 26px 60px -28px rgb(0 168 132 / 0.6); }
+
+.balao {
+  max-width: 82%;
+  padding: 7px 10px 6px;
+  border-radius: 8px;
+  font-size: 14.5px;
+  line-height: 1.42;
+  color: var(--tinta);
+  position: relative;
+  box-shadow: 0 1px 0.5px rgb(11 20 26 / 0.13);
+}
+.dele { background: var(--balao-dele); align-self: flex-start; border-top-left-radius: 2px; }
+.meu  { background: var(--balao-meu);  align-self: flex-end;   border-top-right-radius: 2px; }
+.hora { display: block; text-align: right; font-size: 10.5px; color: var(--tinta-fraca); margin-top: 2px; }
+.nome { display: block; font-weight: 700; color: #0f7a63; }
+
+/* O carimbo de confusão: o que o cliente pensa quando ninguém assina. */
+.pensamento {
+  align-self: flex-start;
+  font-size: 12.5px; font-style: italic;
+  color: var(--tinta-fraca);
+  border-left: 2px solid #c9bfb2;
+  padding-left: 10px; margin-top: 4px;
+}
+
+/* --- seções --- */
+.sec { padding: 72px 0; border-top: 1px solid rgb(233 228 220 / 0.12); }
+.sec h2 {
+  font-family: var(--display); font-weight: 500;
+  font-size: clamp(22px, 3.4vw, 32px); letter-spacing: -0.025em;
+  margin: 0 0 26px;
+}
+.notas { list-style: none; margin: 0; padding: 0; display: grid; gap: 26px; grid-template-columns: 1fr; }
+.notas h3 {
+  font-family: var(--display); font-weight: 500; font-size: 16px;
+  margin: 0 0 8px; color: var(--creme);
+}
+.notas p { margin: 0; font-size: 14.5px; color: var(--creme-fraco); max-width: 44ch; }
+.notas li { border-top: 1px solid rgb(233 228 220 / 0.12); padding-top: 16px; }
+code { font-family: ui-monospace, monospace; font-size: 0.92em; color: var(--verde-claro); }
+
+/* --- pé --- */
+.pe {
+  display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap;
+  padding: 26px 0 60px; border-top: 1px solid rgb(233 228 220 / 0.12);
+  font-family: ui-monospace, monospace; font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--creme-fraco);
+}
+
+@media (min-width: 860px) {
+  .provas { grid-template-columns: 1fr 1fr; gap: 30px; }
+  .notas { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+}
 </style>
 </head>
 <body>
-  <main class="wrap">
-    <p class="eyebrow">
-      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4C13 4 4 12.6 4 23.2c0 5.4 2.3 10.2 6 13.7L8 44l7.6-2.5c2.6 1 5.4 1.6 8.4 1.6 11 0 20-8.6 20-19.2S35 4 24 4z" fill="#00a884"/><text x="24" y="31" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="900" fill="#ffffff" text-anchor="middle">Z</text></svg>
-      Zaptutor
-    </p>
-    <h1>Um número de WhatsApp, vários atendentes, e o cliente sempre sabe com quem fala.</h1>
+
+<header class="wrap topo">
+  <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4C13 4 4 12.6 4 23.2c0 5.4 2.3 10.2 6 13.7L8 44l7.6-2.5c2.6 1 5.4 1.6 8.4 1.6 11 0 20-8.6 20-19.2S35 4 24 4z" fill="#00a884"/><text x="24" y="31" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="900" fill="#07211c" text-anchor="middle">Z</text></svg>
+  <b>Zaptutor</b>
+</header>
+
+<main>
+  <section class="wrap hero">
+    <h1>O cliente merece saber <span>com quem</span> está falando.</h1>
     <p class="lede">
-      Suporte rodando num único login compartilhado do WhatsApp Web não diz ao cliente quem
-      respondeu, e atendente digitando o próprio nome à mão esquece — ou escreve diferente toda
-      vez. O Zaptutor prefixa o nome automaticamente, como conteúdo real da mensagem.
+      Quando o suporte inteiro atende de um número só, toda resposta chega igual.
+      O cliente não sabe se voltou a falar com quem já conhecia. O Zaptutor assina
+      cada mensagem com o nome de quem escreveu — e a assinatura vai como texto de
+      verdade, não como enfeite na tela de quem enviou.
     </p>
+  </section>
 
-    <div class="example">
-      <strong>João</strong><br>
-      Olá, tudo bem? Como posso ajudar?
-      <div class="them">— é isso que o cliente recebe, sempre, em qualquer dispositivo.</div>
-    </div>
+  <!-- A assinatura da página: o mesmo atendimento, duas vezes. -->
+  <section class="wrap provas">
+    <article class="prova sem">
+      <p class="prova-tag"><i></i> Sem Zaptutor</p>
+      <div class="tela">
+        <p class="balao dele">Bom dia, meu pedido ainda não chegou<span class="hora">09:12</span></p>
+        <p class="balao meu">Bom dia! Já vou verificar pra você.<span class="hora">09:13</span></p>
+        <p class="balao meu">Consta como enviado ontem à tarde.<span class="hora">09:15</span></p>
+        <p class="balao dele">Você é a mesma pessoa de ontem?<span class="hora">09:16</span></p>
+        <p class="balao meu">Não, sou de outro turno.<span class="hora">09:16</span></p>
+        <p class="pensamento">Quatro atendentes, um número, nenhum nome. O cliente recomeça a conversa toda vez.</p>
+      </div>
+    </article>
 
-    <div class="metrics">
-      <div class="metric"><div class="value">28</div><div class="label">Commits</div></div>
-      <div class="metric"><div class="value">24</div><div class="label">Testes unitários</div></div>
-      <div class="metric"><div class="value">1</div><div class="label">Permissão pedida</div></div>
-      <div class="metric"><div class="value">0</div><div class="label">Chamadas de rede</div></div>
-    </div>
+    <article class="prova com">
+      <p class="prova-tag"><i></i> Com Zaptutor</p>
+      <div class="tela">
+        <p class="balao dele">Bom dia, meu pedido ainda não chegou<span class="hora">09:12</span></p>
+        <p class="balao meu"><span class="nome">João</span>Bom dia! Já vou verificar pra você.<span class="hora">09:13</span></p>
+        <p class="balao meu"><span class="nome">Marina</span>Consta como enviado ontem à tarde. Assumi o turno do João.<span class="hora">09:15</span></p>
+        <p class="balao dele">Perfeito, obrigado Marina!<span class="hora">09:16</span></p>
+        <p class="pensamento">A prova é a última linha: o cliente chamou a atendente pelo nome.</p>
+      </div>
+    </article>
+  </section>
 
-    <div class="features">
-      <div class="feature">
-        <p class="label">Conteúdo, não CSS</p>
-        <p>O nome vira parte da mensagem de verdade — visível pra todo mundo, em qualquer tela, inclusive em grupo.</p>
-      </div>
-      <div class="feature">
-        <p class="label">A prévia nunca mente</p>
-        <p>O popup renderiza pela mesma função que monta a mensagem real, então o que você vê é exatamente o que sai.</p>
-      </div>
-      <div class="feature">
-        <p class="label">Sincroniza pela conta Google</p>
-        <p>Configura o nome uma vez com <code>chrome.storage.sync</code> e ele te acompanha em qualquer computador.</p>
-      </div>
-      <div class="feature">
-        <p class="label">Zero rede, zero coleta</p>
-        <p>Roda inteiro no navegador. Nenhuma chamada externa, nenhum dado saindo da sua máquina.</p>
-      </div>
-    </div>
+  <section class="wrap sec">
+    <h2>Três detalhes que decidem se funciona</h2>
+    <ul class="notas">
+      <li>
+        <h3>A assinatura é conteúdo, não estilo</h3>
+        <p>O nome entra no texto antes do envio. Vai para todo destinatário, em qualquer aparelho, inclusive em grupo — e continua lá quando alguém rolar a conversa meses depois.</p>
+      </li>
+      <li>
+        <h3>Uma quebra de linha chega como duas</h3>
+        <p>O editor do WhatsApp é o Lexical e renderiza cada linha como parágrafo próprio, então <code>innerText</code> devolve duas quebras onde há uma. Ler a caixa de forma ingênua duplicava toda mensagem.</p>
+      </li>
+      <li>
+        <h3>A prévia não pode mentir</h3>
+        <p>O popup renderiza pela mesma função que monta a mensagem real. Prévia com caminho próprio é prévia que diverge, e você só descobre na frente do cliente.</p>
+      </li>
+    </ul>
+  </section>
+</main>
 
-    <div class="footer">
-      <span class="mute">Chrome MV3 · JavaScript</span>
-      <a href="https://github.com/JaoVile/zaptutor" target="_blank" rel="noopener noreferrer">código no GitHub →</a>
-    </div>
-  </main>
+<footer class="wrap pe">
+  <span>Chrome MV3 · 24 testes · zero chamadas de rede</span>
+  <a href="https://github.com/JaoVile/zaptutor" target="_blank" rel="noopener noreferrer">código no GitHub →</a>
+</footer>
+
 </body>
 </html>
