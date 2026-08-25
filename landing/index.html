@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zaptutor — assinatura de atendente no WhatsApp Web</title>
+<meta name="description" content="Extensão para Chrome que prefixa o nome do atendente em toda mensagem enviada de um número de WhatsApp Web compartilhado por várias pessoas.">
+<style>
+  :root {
+    --ink: #0c1210;
+    --panel: rgba(255,255,255,0.04);
+    --rule: rgba(255,255,255,0.12);
+    --bone: #e9efec;
+    --mute: #8a9a94;
+    --accent: #00a884;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--bone);
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 72px 24px 96px; }
+  .eyebrow {
+    display: flex; align-items: center; gap: 10px;
+    font-family: ui-monospace, "JetBrains Mono", Menlo, monospace;
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--mute); margin-bottom: 20px;
+  }
+  h1 { font-size: clamp(32px, 6vw, 54px); line-height: 1.08; font-weight: 600; max-width: 760px; margin: 0 0 20px; }
+  .lede { max-width: 560px; color: var(--mute); font-size: 16px; margin-bottom: 48px; }
+  .example {
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 20px 24px; max-width: 420px; margin-bottom: 56px; font-size: 15px;
+  }
+  .example strong { color: var(--accent); }
+  .example .them { color: var(--mute); font-size: 12px; margin-top: 10px; }
+  .metrics {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin-bottom: 56px;
+  }
+  .metric { background: var(--panel); padding: 20px 18px; }
+  .metric .value { font-size: 28px; font-family: ui-monospace, monospace; color: var(--accent); margin-bottom: 6px; }
+  .metric .label { font-family: ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 56px; }
+  .feature .label { font-family: ui-monospace, monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .feature p { font-size: 14px; color: var(--bone); margin: 0; }
+  .footer { border-top: 1px solid var(--rule); padding-top: 24px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap; font-family: ui-monospace, monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .footer .mute { color: var(--mute); }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <p class="eyebrow">
+      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4C13 4 4 12.6 4 23.2c0 5.4 2.3 10.2 6 13.7L8 44l7.6-2.5c2.6 1 5.4 1.6 8.4 1.6 11 0 20-8.6 20-19.2S35 4 24 4z" fill="#00a884"/><text x="24" y="31" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="900" fill="#ffffff" text-anchor="middle">Z</text></svg>
+      Zaptutor
+    </p>
+    <h1>Um número de WhatsApp, vários atendentes, e o cliente sempre sabe com quem fala.</h1>
+    <p class="lede">
+      Suporte rodando num único login compartilhado do WhatsApp Web não diz ao cliente quem
+      respondeu, e atendente digitando o próprio nome à mão esquece — ou escreve diferente toda
+      vez. O Zaptutor prefixa o nome automaticamente, como conteúdo real da mensagem.
+    </p>
+
+    <div class="example">
+      <strong>João</strong><br>
+      Olá, tudo bem? Como posso ajudar?
+      <div class="them">— é isso que o cliente recebe, sempre, em qualquer dispositivo.</div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="value">28</div><div class="label">Commits</div></div>
+      <div class="metric"><div class="value">24</div><div class="label">Testes unitários</div></div>
+      <div class="metric"><div class="value">1</div><div class="label">Permissão pedida</div></div>
+      <div class="metric"><div class="value">0</div><div class="label">Chamadas de rede</div></div>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <p class="label">Conteúdo, não CSS</p>
+        <p>O nome vira parte da mensagem de verdade — visível pra todo mundo, em qualquer tela, inclusive em grupo.</p>
+      </div>
+      <div class="feature">
+        <p class="label">A prévia nunca mente</p>
+        <p>O popup renderiza pela mesma função que monta a mensagem real, então o que você vê é exatamente o que sai.</p>
+      </div>
+      <div class="feature">
+        <p class="label">Sincroniza pela conta Google</p>
+        <p>Configura o nome uma vez com <code>chrome.storage.sync</code> e ele te acompanha em qualquer computador.</p>
+      </div>
+      <div class="feature">
+        <p class="label">Zero rede, zero coleta</p>
+        <p>Roda inteiro no navegador. Nenhuma chamada externa, nenhum dado saindo da sua máquina.</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span class="mute">Chrome MV3 · JavaScript</span>
+      <a href="https://github.com/JaoVile/zaptutor" target="_blank" rel="noopener noreferrer">código no GitHub →</a>
+    </div>
+  </main>
+</body>
+</html>
